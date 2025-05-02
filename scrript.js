@@ -20,7 +20,7 @@ function convertSecondsToTime(seconds) {
 async function getsongs() {
     try {
         // Try to fetch from server directory
-        let response = await fetch("./musics");
+        let response = await fetch("musics");
         if (!response.ok) {
             throw new Error(`Failed to fetch: ${response.status}`);
         }
