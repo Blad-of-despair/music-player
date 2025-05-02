@@ -20,7 +20,7 @@ function convertSecondsToTime(seconds) {
 async function getsongs() {
     try {
         // Try to fetch from server directory
-        let response = await fetch("musics");
+        let response = await fetch("./musics");
         if (!response.ok) {
             throw new Error(`Failed to fetch: ${response.status}`);
         }
@@ -95,6 +95,8 @@ const playsong = (track, pause = false) => {
 let isShuffleActive = false;
 let isRepeatActive = false;
 let originalSongOrder = [];
+let recentlyPlayed = [];
+let allSongs = [];
 
 // Add this to your main function after the songs are loaded
 async function main() {
@@ -102,7 +104,7 @@ async function main() {
 
 
     let songs = await getsongs();
-    // Store the original song order
+    allSongs = [...songs];
     originalSongOrder = [...songs];
     playsong(`musics/${songs[0]}`, true);
 
@@ -118,10 +120,101 @@ async function main() {
         </li>`;
     }
 
+    // Helper to update Recently Played section
+    function updateRecentlyPlayedDOM() {
+        const recentlyPlayedDiv = document.querySelectorAll('.songs.scroll-box.margin-bottom')[0];
+        recentlyPlayedDiv.innerHTML = '';
+        recentlyPlayed.forEach((song, idx) => {
+            recentlyPlayedDiv.innerHTML += `<div class="song"><div class="song-cover"></div><div class="song-title">${song.replace('.mp3','')}</div><button class="song-play-btn" data-song-idx="${idx}"><img src="./elements/play.svg" alt="Play"></button></div>`;
+        });
+    }
+    // Helper to update Recently Added section
+    function updateRecentlyAddedDOM() {
+        const recentlyAddedDiv = document.querySelectorAll('.songs.scroll-box.margin-bottom')[1];
+        recentlyAddedDiv.innerHTML = '';
+        allSongs.forEach((song, idx) => {
+            recentlyAddedDiv.innerHTML += `<div class="song"><div class="song-title">${song.replace('.mp3','')}</div><button class="song-play-btn" data-song-idx="${idx}"><img src="./elements/play.svg" alt="Play"></button></div>`;
+        });
+    }
+    // Initial population
+    updateRecentlyPlayedDOM();
+    updateRecentlyAddedDOM();
+
+    // Add click listeners for Recently Played section
+    function attachRecentlyPlayedListeners() {
+        const recentlyPlayedDiv = document.querySelectorAll('.songs.scroll-box.margin-bottom')[0];
+        Array.from(recentlyPlayedDiv.getElementsByClassName('song')).forEach((el, idx) => {
+            el.addEventListener('click', () => {
+                const songName = recentlyPlayed[idx];
+                playsong(`musics/${songName}`);
+                // Move to top of recently played
+                const i = recentlyPlayed.indexOf(songName);
+                if(i !== -1) recentlyPlayed.splice(i,1);
+                recentlyPlayed.unshift(songName);
+                if(recentlyPlayed.length > 10) recentlyPlayed.pop();
+                updateRecentlyPlayedDOM();
+                attachRecentlyPlayedListeners();
+            });
+            // Play button event
+            const playBtn = el.querySelector('.song-play-btn');
+            if (playBtn) {
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const songName = recentlyPlayed[parseInt(playBtn.getAttribute('data-song-idx'))];
+                    playsong(`musics/${songName}`);
+                });
+            }
+        });
+    }
+    // Add click listeners for Recently Added section
+    function attachRecentlyAddedListeners() {
+        const recentlyAddedDiv = document.querySelectorAll('.songs.scroll-box.margin-bottom')[1];
+        Array.from(recentlyAddedDiv.getElementsByClassName('song')).forEach((el, idx) => {
+            el.addEventListener('click', () => {
+                const songName = allSongs[idx];
+                playsong(`musics/${songName}`);
+                // Update recently played
+                const i = recentlyPlayed.indexOf(songName);
+                if(i !== -1) recentlyPlayed.splice(i,1);
+                recentlyPlayed.unshift(songName);
+                if(recentlyPlayed.length > 10) recentlyPlayed.pop();
+                updateRecentlyPlayedDOM();
+                attachRecentlyPlayedListeners();
+                attachRecentlyPlayedListeners();
+            });
+            // Play button event
+            const playBtn = el.querySelector('.song-play-btn');
+            if (playBtn) {
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const songName = allSongs[parseInt(playBtn.getAttribute('data-song-idx'))];
+                    playsong(`musics/${songName}`);
+                });
+            }
+        });
+    }
+    // Re-attach listeners after DOM updates
+    function updateRecentlyPlayedDOMWithListeners() {
+        updateRecentlyPlayedDOM();
+        attachRecentlyPlayedListeners();
+    }
+    function updateRecentlyAddedDOMWithListeners() {
+        updateRecentlyAddedDOM();
+        attachRecentlyAddedListeners();
+    }
+    // Replace calls to update DOM with new functions
+    updateRecentlyPlayedDOMWithListeners();
+    updateRecentlyAddedDOMWithListeners();
     Array.from(document.querySelectorAll(".songlist li")).forEach((e, index) => {
         e.addEventListener("click", () => {
-            const songName = e.querySelector(".info div").textContent;
+            const songName = e.querySelector(".info div").textContent + '.mp3';
             playsong(`musics/${songs[index]}`); // Pass the full URL to the playsong function
+            // Update recently played
+            const idx = recentlyPlayed.indexOf(songName);
+            if(idx !== -1) recentlyPlayed.splice(idx,1);
+            recentlyPlayed.unshift(songName);
+            if(recentlyPlayed.length > 10) recentlyPlayed.pop();
+            updateRecentlyPlayedDOM();
         });
     });
     play.addEventListener('click', () => {
@@ -169,7 +262,7 @@ async function main() {
     })
 
     previous.addEventListener('click',()=>{
-  
+
         
     })
     previous.addEventListener('click', () => {
