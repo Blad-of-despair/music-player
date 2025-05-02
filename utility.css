@@ -1,0 +1,55 @@
+.border{
+    border: 2px solid white;
+    margin: 2px;
+}
+.flex{
+    display: flex;
+}
+.justify-center{
+    justify-content: center;
+}
+.align-center{
+    align-items: center;
+}
+.scroll-box {
+    display: flex; 
+    flex-wrap: nowrap; 
+    justify-content: flex-start; 
+    overflow-x: scroll; 
+    overflow-y: hidden; 
+    white-space: nowrap;
+    width: 100%; 
+    height: auto; 
+    padding-right: 10px; 
+    box-sizing: border-box; 
+}
+.margin-bottom{
+    margin-bottom: 4%;
+}
+.invert{
+    filter: invert(1);
+}
+/* Apply to all scrollable elements */
+* {
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #888 transparent; /* For Firefox */
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+    border: 2px solid transparent;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
