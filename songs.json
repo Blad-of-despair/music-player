@@ -1,9 +1,7 @@
-{
-  "songs": [
-    "song1.mp3",
-    "song2.mp3",
-    "song3.mp3",
-    "song4.mp3",
-    "song5.mp3"
-  ]
-}
+[
+  "musics/song1.mp3",
+  "musics/song2.mp3",
+  "musics/song3.mp3",
+  "musics/song4.mp3",
+  "musics/song5.mp3"
+]
