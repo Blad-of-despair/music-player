@@ -19,39 +19,16 @@ function convertSecondsToTime(seconds) {
 // Replace your getsongs function with this version
 async function getsongs() {
     try {
-        // Try to fetch from server directory
-        let response = await fetch("./musics");
+        let response = await fetch("./songs.json");
         if (!response.ok) {
-            throw new Error(`Failed to fetch: ${response.status}`);
+            throw new Error(`Failed to fetch songs.json: ${response.status}`);
         }
-        
-        let text = await response.text();
-        let div = document.createElement('div');
-        div.innerHTML = text;
-        let as = div.getElementsByTagName('a');
-        let songs = [];
-        
-        for (let i = 0; i < as.length; i++) {
-            const element = as[i];
-            if (element.href.endsWith('.mp3')) {
-                let songName = decodeURIComponent(element.href.split("/").pop());
-                songs.push(songName);
-            }
-        }
-        
-        console.log("Found songs:", songs);
+        let songs = await response.json();
+        console.log("Loaded songs from songs.json:", songs);
         return songs;
     } catch (error) {
         console.error("Error fetching songs:", error);
-        
-        // Create a hardcoded list of songs as fallback
-        return [
-            "song1.mp3", 
-            "song2.mp3", 
-            "song3.mp3",
-            "song4.mp3",
-            "song5.mp3"
-        ];
+        return [];
     }
 }
 
